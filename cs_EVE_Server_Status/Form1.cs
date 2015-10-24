@@ -1,4 +1,11 @@
-﻿using System;
+﻿/*
+ * Program: EVE Online Server Status
+ * Author: Garrett Bates
+ * IGN: Thirtyone Organism
+ * Last Mod: Oct 24, 2015
+ */
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -29,11 +36,19 @@ namespace cs_EVE_Server_Status
             _web.DownloadStringCompleted += ProcessServerResponse;
         }
 
+        /*
+         * Handles onClick event for 'Query' button.
+         */
         private void btnQuery_Click(object sender, EventArgs e)
         {
             GetData();
         }
 
+        /*
+         * This is the function that's called when the user clicks the 'Query'
+         * button after program launch, and called by the timer after each
+         * cache expiration period.
+         */
         private void GetData()
         {
 
@@ -48,6 +63,11 @@ namespace cs_EVE_Server_Status
             }
         }
 
+        /*
+         * Calls made to the EVE Online API server are done so asynchronously.
+         * Here is where fields are parsed from the returned XML file, 
+         * processed, and displayed on the Form. 
+         */
         void ProcessServerResponse(object sender, DownloadStringCompletedEventArgs e)
         {
             StringBuilder sb = new StringBuilder();
@@ -119,6 +139,13 @@ namespace cs_EVE_Server_Status
             }
         }
 
+        /* 
+         * This function derives the 30-ST number from all pervious data points.
+         * 30-ST takes all datapoints that fall on the same day as the current,
+         * and further filters them by those that are within 5 minutes, then
+         * takes the average. What this gives is the average server population
+         * count for the current time on the current day of the week.
+         */
         private void DetermineRelativePlayerPopulation(int player_difference)
         {
             try
@@ -176,6 +203,9 @@ namespace cs_EVE_Server_Status
             }
         }
 
+        /*
+         * Timer tick event.
+         */
         private void timerRequest_Tick(object sender, EventArgs e)
         {
             GetData();
