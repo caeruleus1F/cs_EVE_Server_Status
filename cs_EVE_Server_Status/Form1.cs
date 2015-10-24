@@ -121,52 +121,59 @@ namespace cs_EVE_Server_Status
 
         private void DetermineRelativePlayerPopulation(int player_difference)
         {
-            List<string> lines = new List<string>();
-            string line = null;
-            DateTime now = DateTime.Now;
-            DateTime lineDate;
-            StringBuilder sb = new StringBuilder();
-            int qualifying_player_total = 0;
-            int average_now_player_count = 0;
-            int difference_30_ST = 0;
-
-            using (StreamReader r = new StreamReader("ccp_server.csv"))
+            try
             {
-                r.ReadLine(); // discard first line, header
+                List<string> lines = new List<string>();
+                string line = null;
+                DateTime now = DateTime.Now;
+                DateTime lineDate;
+                StringBuilder sb = new StringBuilder();
+                int qualifying_player_total = 0;
+                int average_now_player_count = 0;
+                int difference_30_ST = 0;
 
-                while (!r.EndOfStream)
+                using (StreamReader r = new StreamReader("ccp_server.csv"))
                 {
-                    line = r.ReadLine();
-                    lineDate = DateTime.Parse(line.Split(',')[0]);
+                    r.ReadLine(); // discard first line, header
 
-                    if (now.AddDays(-30) <= lineDate &&
-                        now.DayOfWeek == lineDate.DayOfWeek &&
-                        now.TimeOfDay.Add(TimeSpan.FromMinutes(-5)) <= lineDate.TimeOfDay &&
-                        now.TimeOfDay.Add(TimeSpan.FromMinutes(5)) >= lineDate.TimeOfDay)
+                    while (!r.EndOfStream)
                     {
-                        lines.Add(line);
+                        line = r.ReadLine();
+                        lineDate = DateTime.Parse(line.Split(',')[0]);
+
+                        if (now.AddDays(-30) <= lineDate &&
+                            now.DayOfWeek == lineDate.DayOfWeek &&
+                            now.TimeOfDay.Add(TimeSpan.FromMinutes(-5)) <= lineDate.TimeOfDay &&
+                            now.TimeOfDay.Add(TimeSpan.FromMinutes(5)) >= lineDate.TimeOfDay)
+                        {
+                            lines.Add(line);
+                        }
                     }
+
+                    r.Close();
                 }
 
-                r.Close();
-            }
+                foreach (string item in lines)
+                {
+                    qualifying_player_total += Convert.ToInt32(item.Split(',')[1]);
+                }
 
-            foreach (string item in lines)
+                average_now_player_count = Convert.ToInt32(qualifying_player_total / lines.Count);
+                difference_30_ST = _online_players - average_now_player_count;
+                float pct_difference = 100 * (float)_online_players / average_now_player_count;
+                sb.Append(difference_30_ST)
+                    .Append(" ")
+                    .Append(pct_difference.ToString("N1"))
+                    .Append("%");
+                txb30ST.Text = sb.ToString();
+
+                sb.Clear();
+                lines.Clear();
+            }
+            catch (Exception)
             {
-                qualifying_player_total += Convert.ToInt32(item.Split(',')[1]);
+
             }
-
-            average_now_player_count = Convert.ToInt32(qualifying_player_total / lines.Count);
-            difference_30_ST = _online_players - average_now_player_count;
-            float pct_difference = 100 * (float)_online_players / average_now_player_count;
-            sb.Append(difference_30_ST)
-                .Append(" ")
-                .Append(pct_difference.ToString("N1"))
-                .Append("%");
-            txb30ST.Text = sb.ToString();
-
-            sb.Clear();
-            lines.Clear();
         }
 
         private void timerRequest_Tick(object sender, EventArgs e)
