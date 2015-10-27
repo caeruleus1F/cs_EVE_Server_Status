@@ -1,5 +1,7 @@
 # cs_EVE_Server_Status
 
+http://imgur.com/nCBjfRC - Screenshot
+
 Does the same thing as its Visual Basic counterpart, but has the added benefit of not being Visual Basic (sorry, VB).
 
 On button-click, makes a call to one of the EVE Online API endpoints that caches Tranquility server status and population data. 
